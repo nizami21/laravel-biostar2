@@ -24,7 +24,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nizami\\LaravelBiostar2\\BioStar2ServiceProvider"
+                "Nizami\\LaravelBiostar2\\Biostar2ServiceProvider"
             ]
         }
     },
