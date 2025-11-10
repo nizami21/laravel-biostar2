@@ -2,28 +2,6 @@
 
 > A modern Laravel package for seamless interaction with the **Biostar2 API** — enabling elegant user, event, card, and access control management with automatic authentication and caching.
 
-
-Authenticate Composer with GitHub
-
-Composer can’t access private repos unless you authenticate.
-Run this command (once per machine):
-
-```bash
-    composer config --global --auth github-oauth.github.com YOUR_GITHUB_TOKEN
-```
-
-🔹 Create the token here:
-https://github.com/settings/tokens?type=beta
-
-Give it:
-
-✅ Read access to code
-
-✅ Read access to metadata
-
-You can reuse this same token for all private packages.
-
-
 Add the Repository to Your Laravel Project
 
 In your Laravel project’s composer.json, add the private repository entry before "require":
