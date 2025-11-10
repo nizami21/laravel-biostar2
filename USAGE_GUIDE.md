@@ -1,9 +1,4 @@
 # Biostar2 Laravel Package — Usage Guide
-```markdown
-
-A comprehensive guide on using the Biostar2 Laravel package for full control of your Biostar2 system through Laravel.
-
----
 
 ## 🔐 Authentication
 

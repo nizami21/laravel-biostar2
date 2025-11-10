@@ -1,11 +1,6 @@
 # Biostar2 Laravel Package
-````markdown
 
-A modern Laravel package for seamless interaction with the **Biostar2 API** — enabling elegant user, event, card, and access control management with automatic authentication and caching.
-
----
-
-## 🚀 Quick Start
+> A modern Laravel package for seamless interaction with the **Biostar2 API** — enabling elegant user, event, card, and access control management with automatic authentication and caching.
 
 ### 1️⃣ Install
 
@@ -28,8 +23,6 @@ BIOSTAR2_PASSWORD=your_admin_password
 BIOSTAR2_VERIFY_SSL=false
 BIOSTAR2_TOKEN_CACHE_DURATION=3600
 ```
-
----
 
 ## 🧩 Basic Usage
 
