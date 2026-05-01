@@ -7,6 +7,7 @@ use nizami\LaravelBiostar2\Biostar2Client;
 
 class EventResource
 {
+    /** @var Biostar2Client */
     protected Biostar2Client $client;
 
     // Event type constants

@@ -102,6 +102,44 @@ $grouped = Biostar2::events()->groupByDateAndUser($events);
 
 ---
 
+## 🚪 Door Management
+
+### Control Doors
+
+```php
+Biostar2::doors()->unlock('101');
+Biostar2::doors()->lock('101');
+Biostar2::doors()->release('101');
+Biostar2::doors()->clearAlarm('101');
+```
+
+### Fetch Doors
+
+```php
+$doors = Biostar2::doors()->all();
+$door = Biostar2::doors()->get('101');
+```
+
+---
+
+## 📱 Device Management
+
+```php
+$devices = Biostar2::devices()->all();
+Biostar2::devices()->reboot('device-id');
+```
+
+---
+
+## 👥 User Groups
+
+```php
+$groups = Biostar2::userGroups()->all();
+Biostar2::userGroups()->create(['name' => 'Contractors']);
+```
+
+---
+
 ## 🏢 Access Groups
 
 ```php
@@ -189,7 +227,3 @@ EventResource::OPERATOR_BETWEEN; // 3
 ## 📘 License
 
 MIT License © nizami
-
----
-
-> 🧩 Built for Laravel · Simplified Biostar2 Integration

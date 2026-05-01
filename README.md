@@ -2,23 +2,10 @@
 
 > A modern Laravel package for seamless interaction with the **Biostar2 API** — enabling elegant user, event, card, and access control management with automatic authentication and caching.
 
-Add the Repository to Your Laravel Project
-
-In your Laravel project’s composer.json, add the private repository entry before "require":
-```json
-    "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/nizami21/laravel-biostar2.git"
-    }
-    ],
-```
-
-
 ### 1️⃣ Install
 
 ```bash
-composer require nizami/laravel-biostar2:dev-main
+composer require nizami/laravel-biostar2
 ````
 
 ### 2️⃣ Publish Config
@@ -30,7 +17,7 @@ php artisan vendor:publish --tag=biostar2-config
 ### 3️⃣ Configure `.env`
 
 ```env
-BIOSTAR2_BASE_URL=https://10.150.20.173
+BIOSTAR2_BASE_URL=https://your-biostar-server.com
 BIOSTAR2_LOGIN_ID=your_admin_username
 BIOSTAR2_PASSWORD=your_admin_password
 BIOSTAR2_VERIFY_SSL=false
@@ -46,7 +33,26 @@ use nizami\LaravelBiostar2\Facades\Biostar2;
 $userId = Biostar2::users()->getNextUserId();
 ```
 
-### Create User
+### Door Control
+
+```php
+// Unlock a door remotely
+Biostar2::doors()->unlock('101');
+```
+
+### Search Events
+
+```php
+use Carbon\Carbon;
+
+$events = Biostar2::events()->search([
+    'start_date' => Carbon::now()->startOfDay(),
+    'end_date' => Carbon::now()->endOfDay(),
+    'event_types' => [4102], // Access Granted
+]);
+```
+
+### User Management
 
 ```php
 Biostar2::users()->create([
@@ -57,46 +63,24 @@ Biostar2::users()->create([
 ]);
 ```
 
-### Search Events
-
-```php
-use Carbon\Carbon;
-
-$events = Biostar2::events()->search([
-    'start_date' => Carbon::now()->startOfMonth(),
-    'end_date' => Carbon::now()->endOfMonth(),
-    'device_ids' => [544430390],
-]);
-```
-
-### Assign Card
-
-```php
-Biostar2::cards()->createAndAssign('12345', 'CARD-NUMBER-123');
-```
-
 ---
 
 ## 🧠 Key Features
 
-* ✅ Auto token caching and renewal
-* ✅ Facade support (`Biostar2::`)
-* ✅ Built-in exception handling
-* ✅ Configurable devices & event types
-* ✅ Elegant, fluent syntax
+* ✅ **Auto Authentication**: Token caching and automatic renewal on expiration.
+* ✅ **Hardware Control**: Remote unlock/lock/reboot for Doors and Devices.
+* ✅ **Comprehensive Resources**: Users, Cards, Events, Access Groups, User Groups, and more.
+* ✅ **Logical Error Detection**: Automatically detects hardware-level errors even on `200 OK` responses.
+* ✅ **Facade Support**: Clean `Biostar2::` syntax.
 
 ---
 
 ## ⚙️ Configuration
 
-The `config/biostar2.php` file defines connection details, device groups, and event types.
+The `config/biostar2.php` file defines connection details, device mappings, and default event types.
 
 ---
 
 ## 🧾 License
 
 MIT License
-
----
-
-> Built for Laravel • Designed for simplicity • Powered by Biostar2

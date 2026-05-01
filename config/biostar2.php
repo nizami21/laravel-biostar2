@@ -9,7 +9,7 @@ return [
     | The base URL for your Biostar2 API endpoint
     |
     */
-    'base_url' => env('BIOSTAR2_BASE_URL', 'https://10.150.20.173'),
+    'base_url' => env('BIOSTAR2_BASE_URL'),
 
     /*
     |--------------------------------------------------------------------------

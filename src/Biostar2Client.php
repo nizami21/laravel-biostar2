@@ -8,7 +8,10 @@ use nizami\LaravelBiostar2\Resources\UserResource;
 use nizami\LaravelBiostar2\Resources\EventResource;
 use nizami\LaravelBiostar2\Resources\CardResource;
 use nizami\LaravelBiostar2\Resources\AccessGroupResource;
-use YourVendor\Biostar2\Exceptions\Biostar2Exception;
+use nizami\LaravelBiostar2\Resources\DoorResource;
+use nizami\LaravelBiostar2\Resources\DeviceResource;
+use nizami\LaravelBiostar2\Resources\UserGroupResource;
+use nizami\LaravelBiostar2\Exceptions\Biostar2Exception;
 
 class Biostar2Client
 {
@@ -23,19 +26,29 @@ class Biostar2Client
     public EventResource $events;
     public CardResource $cards;
     public AccessGroupResource $accessGroups;
+    public DoorResource $doors;
+    public DeviceResource $devices;
+    public UserGroupResource $userGroups;
 
     public function __construct(array $config = [])
     {
-        $this->baseUrl = $config['base_url'] ?? config('biostar2.base_url');
-        $this->loginId = $config['login_id'] ?? config('biostar2.login_id');
-        $this->password = $config['password'] ?? config('biostar2.password');
-        $this->verifySSL = $config['verify_ssl'] ?? config('biostar2.verify_ssl', false);
-        $this->tokenCacheDuration = $config['token_cache_duration'] ?? config('biostar2.token_cache_duration', 3600);
+        $this->baseUrl = $config['base_url'] ?? '';
+        $this->loginId = $config['login_id'] ?? '';
+        $this->password = $config['password'] ?? '';
+        $this->verifySSL = $config['verify_ssl'] ?? false;
+        $this->tokenCacheDuration = $config['token_cache_duration'] ?? 3600;
+
+        if (empty($this->baseUrl)) {
+            throw new Biostar2Exception('Biostar2 base URL is not configured.');
+        }
 
         $this->users = new UserResource($this);
         $this->events = new EventResource($this);
         $this->cards = new CardResource($this);
         $this->accessGroups = new AccessGroupResource($this);
+        $this->doors = new DoorResource($this);
+        $this->devices = new DeviceResource($this);
+        $this->userGroups = new UserGroupResource($this);
     }
 
     /**
@@ -43,7 +56,7 @@ class Biostar2Client
      */
     public function authenticate(): string
     {
-        $cacheKey = 'biostar2_session_token';
+        $cacheKey = 'biostar2_session_' . md5($this->baseUrl . $this->loginId);
         
         if ($cachedToken = Cache::get($cacheKey)) {
             $this->sessionId = $cachedToken;
@@ -52,7 +65,7 @@ class Biostar2Client
 
         try {
             $response = Http::withOptions(['verify' => $this->verifySSL])
-                ->post("{$this->baseUrl}/api/login", [
+                ->post(rtrim($this->baseUrl, '/') . '/api/login', [
                     'User' => [
                         'login_id' => $this->loginId,
                         'password' => $this->password,
@@ -61,6 +74,12 @@ class Biostar2Client
 
             if (!$response->successful()) {
                 throw new Biostar2Exception('Authentication failed: ' . $response->body());
+            }
+
+            // Check for logical error in 200 OK response
+            $body = $response->json();
+            if (isset($body['Response']['status']) && $body['Response']['status'] === 'fail') {
+                throw new Biostar2Exception('Authentication failed: ' . ($body['Response']['message'] ?? 'Unknown error'));
             }
 
             $sessionId = $response->header('bs-session-id');
@@ -91,11 +110,18 @@ class Biostar2Client
 
     /**
      * Make authenticated request with automatic retry on 401
+     *
+     * @param string $method
+     * @param string $endpoint
+     * @param array $data
+     * @param bool $retry
+     * @return \Illuminate\Http\Client\Response
+     * @throws Biostar2Exception
      */
-    public function request(string $method, string $endpoint, array $data = [], bool $retry = true)
+    public function request(string $method, string $endpoint, array $data = [], bool $retry = true): \Illuminate\Http\Client\Response
     {
         $sessionId = $this->getSessionId();
-        $url = "{$this->baseUrl}{$endpoint}";
+        $url = rtrim($this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
 
         try {
             $request = Http::withOptions(['verify' => $this->verifySSL])
@@ -111,14 +137,23 @@ class Biostar2Client
 
             // Handle token expiration
             if ($response->status() === 401 && $retry) {
-                Cache::forget('biostar2_session_token');
+                $cacheKey = 'biostar2_session_' . md5($this->baseUrl . $this->loginId);
+                Cache::forget($cacheKey);
                 $this->sessionId = null;
                 return $this->request($method, $endpoint, $data, false);
             }
 
             if (!$response->successful()) {
                 throw new Biostar2Exception(
-                    "API request failed [{$response->status()}]: {$response->body()}"
+                    "API request failed [{$response->status()}]: " . $response->body()
+                );
+            }
+
+            // Check for logical error in successful HTTP response
+            $body = $response->json();
+            if (isset($body['Response']['status']) && $body['Response']['status'] === 'fail') {
+                throw new Biostar2Exception(
+                    "API logical error [{$body['Response']['code'] ?? 'N/A'}]: " . ($body['Response']['message'] ?? 'Unknown error')
                 );
             }
 
@@ -131,24 +166,33 @@ class Biostar2Client
     }
 
     /**
-     * Convenience methods
+     * Convenience GET request
      */
-    public function get(string $endpoint, array $query = [])
+    public function get(string $endpoint, array $query = []): \Illuminate\Http\Client\Response
     {
         return $this->request('GET', $endpoint, $query);
     }
 
-    public function post(string $endpoint, array $data = [])
+    /**
+     * Convenience POST request
+     */
+    public function post(string $endpoint, array $data = []): \Illuminate\Http\Client\Response
     {
         return $this->request('POST', $endpoint, $data);
     }
 
-    public function put(string $endpoint, array $data = [])
+    /**
+     * Convenience PUT request
+     */
+    public function put(string $endpoint, array $data = []): \Illuminate\Http\Client\Response
     {
         return $this->request('PUT', $endpoint, $data);
     }
 
-    public function delete(string $endpoint, array $data = [])
+    /**
+     * Convenience DELETE request
+     */
+    public function delete(string $endpoint, array $data = []): \Illuminate\Http\Client\Response
     {
         return $this->request('DELETE', $endpoint, $data);
     }
@@ -158,7 +202,8 @@ class Biostar2Client
      */
     public function clearSession(): void
     {
-        Cache::forget('biostar2_session_token');
+        $cacheKey = 'biostar2_session_' . md5($this->baseUrl . $this->loginId);
+        Cache::forget($cacheKey);
         $this->sessionId = null;
     }
 }

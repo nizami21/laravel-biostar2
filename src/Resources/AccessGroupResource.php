@@ -6,6 +6,7 @@ use nizami\LaravelBiostar2\Biostar2Client;
 
 class AccessGroupResource
 {
+    /** @var Biostar2Client */
     protected Biostar2Client $client;
 
     public function __construct(Biostar2Client $client)

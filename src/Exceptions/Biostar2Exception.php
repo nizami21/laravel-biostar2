@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\Biostar2\Exceptions;
+namespace nizami\LaravelBiostar2\Exceptions;
 
 class Biostar2Exception extends \Exception
 {

@@ -3,11 +3,12 @@
 namespace nizami\LaravelBiostar2\Resources;
 
 use nizami\LaravelBiostar2\Biostar2Client;
-use nizami\LaravelBiostar2\Resources\Exceptions\Biostar2Exception;
+use nizami\LaravelBiostar2\Exceptions\Biostar2Exception;
 use Carbon\Carbon;
 
 class UserResource
 {
+    /** @var Biostar2Client */
     protected Biostar2Client $client;
 
     public function __construct(Biostar2Client $client)

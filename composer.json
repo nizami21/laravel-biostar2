@@ -5,7 +5,12 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Nizami\\LaravelBiostar2\\": "src/"
+            "nizami\\LaravelBiostar2\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "nizami\\LaravelBiostar2\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -19,12 +24,13 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.8",
         "nesbot/carbon": "^3.10",
-        "illuminate/support": "^12.0|^11.0|^10.0"
+        "illuminate/support": "^12.0|^11.0|^10.0",
+        "illuminate/http": "^12.0|^11.0|^10.0"
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Nizami\\LaravelBiostar2\\Biostar2ServiceProvider"
+                "nizami\\LaravelBiostar2\\Biostar2ServiceProvider"
             ]
         }
     },
